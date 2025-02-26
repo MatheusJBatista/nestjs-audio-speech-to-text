@@ -44,6 +44,7 @@ export class AWSTranscribeExternalService implements Speech2TextBase {
       },
       MediaFormat: 'webm',
       OutputBucketName: process.env.AWS_S3_TRANSCRIPTIONS_BUCKET_NAME,
+      OutputKey: `aws-transcribe-result/${filename}.json`,
     });
 
     await this.transcribeClient.send(command);
