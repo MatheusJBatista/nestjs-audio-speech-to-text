@@ -26,4 +26,14 @@ export class Speech2textController {
       audio: file.buffer,
     });
   }
+
+  @Post('/aws')
+  @UseInterceptors(FileInterceptor('audio'))
+  async speech2TextFromAWS(@UploadedFile() file: Express.Multer.File) {
+    return await this.appService.execute({
+      type: 'aws',
+      audio: file.buffer,
+      filename: file.originalname || file.filename,
+    });
+  }
 }
