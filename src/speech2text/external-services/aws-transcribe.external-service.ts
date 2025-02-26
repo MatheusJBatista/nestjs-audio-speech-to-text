@@ -3,7 +3,7 @@ import { Speech2TextBase } from './speech2text.interface';
 import { AWSS3ExternalService } from './aws-s3.external-service';
 import {
   TranscribeClient,
-  StartCallAnalyticsJobCommand,
+  StartTranscriptionJobCommand,
 } from '@aws-sdk/client-transcribe';
 import * as dayjs from 'dayjs';
 
@@ -32,25 +32,18 @@ export class AWSTranscribeExternalService implements Speech2TextBase {
 
     const jobName = `${dayjs().format('DD-MM-YYYY')}-${filename}`;
 
-    const command = new StartCallAnalyticsJobCommand({
-      CallAnalyticsJobName: jobName,
+    const command = new StartTranscriptionJobCommand({
+      TranscriptionJobName: jobName,
       Media: {
         MediaFileUri: fileLocation,
       },
+      LanguageCode: 'pt-BR',
       Settings: {
-        LanguageOptions: ['pt-BR', 'es-ES'],
+        ShowSpeakerLabels: true,
+        MaxSpeakerLabels: 10,
       },
-      DataAccessRoleArn: process.env.AWS_TRANSCRIBE_DATA_ACCESS_ROLE_ARN,
-      ChannelDefinitions: [
-        {
-          ChannelId: 1,
-          ParticipantRole: 'AGENT',
-        },
-        {
-          ChannelId: 0,
-          ParticipantRole: 'CUSTOMER',
-        },
-      ],
+      MediaFormat: 'webm',
+      OutputBucketName: process.env.AWS_S3_TRANSCRIPTIONS_BUCKET_NAME,
     });
 
     await this.transcribeClient.send(command);
